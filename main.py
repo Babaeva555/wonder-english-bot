@@ -135,10 +135,12 @@ async def ai_call(messages, max_tokens=1400):
                 "messages": messages,
                 "temperature": 0.55,
                 "max_completion_tokens": max_tokens,
+                "response_format": {"type": "json_object"},
             },
         )
         response.raise_for_status()
-        return response.json()["choices"][0]["message"]["content"]
+        message = response.json()["choices"][0]["message"]
+        return message.get("content") or message.get("reasoning") or ""
 
 
 def demo_pack(player: Player):
