@@ -11,6 +11,7 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart
 from aiogram.types import CallbackQuery, InlineKeyboardButton, InlineKeyboardMarkup, Message
+from json_repair import repair_json
 
 
 logging.basicConfig(level=logging.INFO)
@@ -185,7 +186,7 @@ Rules:
     match = re.search(r"\{.*\}", raw, re.S)
     if not match:
         raise ValueError("AI returned no JSON")
-    data = json.loads(match.group(0))
+    data = json.loads(repair_json(match.group(0)))
     if not data.get("story") or len(data.get("tasks", [])) < player.task_count:
         raise ValueError("Incomplete AI pack")
     data["tasks"] = data["tasks"][:player.task_count]
@@ -208,7 +209,7 @@ Maximum 25 words in feedback.
         {"role": "user", "content": prompt},
     ], 180)
     match = re.search(r"\{.*\}", raw, re.S)
-    return json.loads(match.group(0))
+    return json.loads(repair_json(match.group(0)))
 
 
 async def show_main(message: Message, player: Player):
